@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
 
 class PromoCodeInput extends StatelessWidget {
-  const PromoCodeInput({super.key});
+  final TextEditingController controller;
+  final VoidCallback onApply;
+
+  const PromoCodeInput({
+    super.key,
+    required this.controller,
+    required this.onApply,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -9,8 +16,9 @@ class PromoCodeInput extends StatelessWidget {
       children: [
         Expanded(
           child: TextField(
+            controller: controller,
             decoration: InputDecoration(
-              hintText: 'Code',
+              hintText: 'Enter Promo Code',
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
@@ -23,7 +31,7 @@ class PromoCodeInput extends StatelessWidget {
         ),
         const SizedBox(width: 8),
         ElevatedButton(
-          onPressed: () {},
+          onPressed: onApply,
           style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
           child: const Text('Apply', style: TextStyle(color: Colors.white)),
         ),
