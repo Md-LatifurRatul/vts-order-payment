@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:vts_price/controller/billing_form_provider.dart';
-import 'package:vts_price/presentation/services/pages/terms_and_payments.dart';
+import 'package:vts_price/presentation/pages/terms_and_payments.dart';
 import 'package:vts_price/presentation/widgets/confirm_order_button.dart';
 import 'package:vts_price/presentation/widgets/cutom_text_field.dart';
 import 'package:vts_price/presentation/widgets/section_title.dart';

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vts_price/presentation/services/pages/order_summaary_page.dart';
+import 'package:vts_price/presentation/pages/order_summaary_page.dart';
 import 'package:vts_price/presentation/widgets/billing_form_section.dart';
 import 'package:vts_price/presentation/widgets/stepper_progress.dart';
 
