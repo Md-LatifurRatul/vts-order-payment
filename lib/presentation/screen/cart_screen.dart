@@ -8,8 +8,23 @@ import '../widgets/cart_faq_item.dart';
 import '../widgets/cart_item_widget.dart';
 import '../widgets/summary_card.dart';
 
-class CartScreen extends StatelessWidget {
+class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
+
+  @override
+  State<CartScreen> createState() => _CartScreenState();
+}
+
+class _CartScreenState extends State<CartScreen> {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final cart = context.read<CartProvider>();
+      await cart.refreshCartPrices(); // ✅ Auto refresh latest prices
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,22 +38,15 @@ class CartScreen extends StatelessWidget {
         automaticallyImplyLeading: true,
         title: const CheckoutStepper(currentStep: 1),
       ),
-      body: cart.items.isEmpty
-          ? const Center(
-              child: Text(
-                'No products added yet!',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-            )
+      body: cart.cartItems.isEmpty
+          ? const Center(child: Text('No products added yet!'))
           : SingleChildScrollView(
-              padding: const EdgeInsets.only(bottom: 24),
               child: Column(
                 children: [
-                  // Cart Items
-                  ...cart.items.map((item) => CartItemWidget(item: item)),
-
-                  // Summary Card with Promo Code & Confirm Button
-                  const SummaryCard(),
+                  ...cart.cartItems.map(
+                    (item) => CartItemWidget(package: item),
+                  ),
+                  SummaryCard(),
 
                   const SizedBox(height: 16),
 
@@ -47,7 +55,7 @@ class CartScreen extends StatelessWidget {
                     label: 'Add More',
                     color: Colors.orange,
                     onPressed: () {
-                      // TODO: Navigate to Product Screen
+                      Navigator.pop(context);
                     },
                   ),
                   const SizedBox(height: 24),
