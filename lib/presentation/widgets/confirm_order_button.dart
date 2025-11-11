@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:vts_price/controller/terms_provider.dart';
 import 'package:vts_price/model/check_out_user_model.dart';
 import 'package:vts_price/presentation/widgets/custom_app_snackbar.dart';
-import 'package:vts_price/services/check_out_user_storage.dart';
 
 class ConfirmOrderButton extends StatelessWidget {
   final GlobalKey<FormState> formKey;
@@ -13,7 +12,8 @@ class ConfirmOrderButton extends StatelessWidget {
   final TextEditingController vehicleModelController;
   final TextEditingController vtsDeliveryAddressController;
   final TextEditingController vtsInstallationAddressController;
-
+  final TextEditingController passwordController;
+  final TextEditingController confirmPasswordController;
   const ConfirmOrderButton({
     super.key,
     required this.formKey,
@@ -23,6 +23,8 @@ class ConfirmOrderButton extends StatelessWidget {
     required this.vehicleModelController,
     required this.vtsDeliveryAddressController,
     required this.vtsInstallationAddressController,
+    required this.passwordController,
+    required this.confirmPasswordController,
   });
 
   @override
@@ -42,7 +44,6 @@ class ConfirmOrderButton extends StatelessWidget {
                   vtsInstallationAddress: vtsInstallationAddressController.text,
                 );
 
-                await CheckOutUserStorage.save(checkoutData);
                 CustomAppSnackbar.show(
                   context,
                   message: 'Order Confirmed!',

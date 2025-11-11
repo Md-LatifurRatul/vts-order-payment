@@ -6,7 +6,10 @@ class CutomTextField extends StatelessWidget {
   final TextInputType? keyboardType;
   final int maxLines;
   final bool enabled;
+  final bool obscureText;
+  final Widget? suffixIcon;
   final String? Function(String?)? validator;
+
   final Function(String)? onChanged;
 
   const CutomTextField({
@@ -17,6 +20,8 @@ class CutomTextField extends StatelessWidget {
     this.maxLines = 1,
     this.enabled = true,
     this.validator,
+    this.obscureText = false,
+    this.suffixIcon,
     this.onChanged,
   });
 
@@ -29,6 +34,7 @@ class CutomTextField extends StatelessWidget {
         keyboardType: keyboardType,
         maxLines: maxLines,
         enabled: enabled,
+        obscureText: obscureText,
         onChanged: onChanged,
         decoration: InputDecoration(
           labelText: label,
@@ -46,6 +52,7 @@ class CutomTextField extends StatelessWidget {
             vertical: 12,
             horizontal: 16,
           ),
+          suffixIcon: suffixIcon,
         ),
         validator: validator,
       ),

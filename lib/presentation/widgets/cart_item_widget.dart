@@ -1,72 +1,78 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:vts_price/controller/cart_provider.dart';
-import 'package:vts_price/model/cart_item_model.dart';
+import 'package:vts_price/package_list/model/package_model.dart';
 
 class CartItemWidget extends StatelessWidget {
-  final CartItemModel item;
-  const CartItemWidget({super.key, required this.item});
+  final DevicePackage package;
+  const CartItemWidget({super.key, required this.package});
 
   @override
   Widget build(BuildContext context) {
     final cart = context.read<CartProvider>();
+    final qty = cart.quantity[package.id!] ?? 1;
+    final price = package.payableAmount ?? 0;
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Product ID
-            Container(
-              width: 24,
-              alignment: Alignment.center,
-              child: Text(
-                item.id,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ),
-            const SizedBox(width: 8),
-
-            // Logo
+            // ✅ PRODUCT ICON (restored)
             CircleAvatar(
               radius: 24,
-              backgroundImage: NetworkImage(item.logoUrl),
+              backgroundImage:
+                  (package.iconPath != null && package.iconPath!.isNotEmpty)
+                  ? NetworkImage(package.iconPath!)
+                  : const AssetImage("assets/images/default_icon.png")
+                        as ImageProvider,
               backgroundColor: Colors.grey[200],
             ),
+
             const SizedBox(width: 12),
 
-            // Title & Price
+            // ✅ LEFT SIDE — NAME + PRICE (Expanded gives max space)
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    item.title,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    package.name ?? '',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                    ),
                   ),
+                  const SizedBox(height: 4),
                   Text(
-                    item.subtitle,
-                    style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                  ),
-                  Text(
-                    '৳ ${(item.price * item.quantity).toStringAsFixed(2)}',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    '৳ ${price.toStringAsFixed(2)}',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
                   ),
                 ],
               ),
             ),
 
-            // Quantity Controls
+            // ✅ RIGHT-SIDE CONTROLS — tightly packed
             Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 IconButton(
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
                   icon: const Icon(Icons.remove, size: 20),
-                  onPressed: () => cart.decreaseQuantity(item.id),
+                  onPressed: () => cart.decreaseQuantity(package),
                 ),
+
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
+                    horizontal: 10,
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
@@ -74,21 +80,31 @@ class CartItemWidget extends StatelessWidget {
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
-                    '${item.quantity}',
+                    qty.toString(),
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
+
                 IconButton(
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
                   icon: const Icon(Icons.add, size: 20),
-                  onPressed: () => cart.increaseQuantity(item.id),
+                  onPressed: () => cart.increaseQuantity(package),
+                ),
+
+                TextButton(
+                  style: TextButton.styleFrom(
+                    padding: EdgeInsets.zero,
+                    minimumSize: const Size(40, 30),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  onPressed: () => cart.removeFromCart(package),
+                  child: const Text(
+                    'Remove',
+                    style: TextStyle(color: Colors.red, fontSize: 12),
+                  ),
                 ),
               ],
-            ),
-
-            // Remove Button
-            TextButton(
-              onPressed: () => cart.removeItem(item.id),
-              child: const Text('Remove', style: TextStyle(color: Colors.red)),
             ),
           ],
         ),

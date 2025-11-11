@@ -18,9 +18,6 @@ class CustomAppSnackbar {
     SnackBarType type = SnackBarType.info,
     Duration duration = const Duration(seconds: 2),
   }) {
-    // Hide any existing SnackBar
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
@@ -29,11 +26,6 @@ class CustomAppSnackbar {
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         margin: const EdgeInsets.all(12),
-        action: SnackBarAction(
-          label: 'OK',
-          textColor: Colors.white,
-          onPressed: () => ScaffoldMessenger.of(context).hideCurrentSnackBar(),
-        ),
       ),
     );
   }
@@ -48,7 +40,6 @@ class CustomAppSnackbar {
       case SnackBarType.warning:
         return Colors.orange;
       case SnackBarType.info:
-      default:
         return Colors.blue;
     }
   }

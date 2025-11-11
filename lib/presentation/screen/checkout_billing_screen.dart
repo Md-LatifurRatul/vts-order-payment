@@ -20,6 +20,9 @@ class _CheckoutBillingScreenState extends State<CheckoutBillingScreen> {
       TextEditingController();
   final TextEditingController _vtsInstallationAddressController =
       TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -52,6 +55,8 @@ class _CheckoutBillingScreenState extends State<CheckoutBillingScreen> {
                             _vtsDeliveryAddressController,
                         vtsInstallationAddressController:
                             _vtsInstallationAddressController,
+                        passwordController: _passwordController,
+                        confirmPasswordController: _confirmPasswordController,
                       ),
                       const SizedBox(height: 20),
                       Container(
@@ -80,6 +85,8 @@ class _CheckoutBillingScreenState extends State<CheckoutBillingScreen> {
                               _vtsDeliveryAddressController,
                           vtsInstallationAddressController:
                               _vtsInstallationAddressController,
+                          passwordController: _passwordController,
+                          confirmPasswordController: _confirmPasswordController,
                         ),
                       ),
                       const SizedBox(width: 24),
@@ -107,6 +114,8 @@ class _CheckoutBillingScreenState extends State<CheckoutBillingScreen> {
     _vehicleModelController.dispose();
     _vtsDeliveryAddressController.dispose();
     _vtsInstallationAddressController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 }

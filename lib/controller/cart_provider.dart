@@ -2,117 +2,168 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:vts_price/controller/device_api_controller.dart';
+import 'package:vts_price/package_list/model/package_model.dart';
 
-import '../model/cart_item_model.dart';
+import '../utils/logger.dart';
 
 class CartProvider extends ChangeNotifier {
-  List<CartItemModel> _items = [];
-  double _subtotal = 0.0;
-  double _total = 0.0;
-  double _discountPercent = 0.0;
+  final List<DevicePackage> _cartItems = [];
+  final Map<int, int> _quantity = {}; // deviceId -> quantity
 
-  List<CartItemModel> get items => _items;
-  double get subtotal => _subtotal;
-  double get total => _total;
-  double get discountPercent => _discountPercent;
+  List<DevicePackage> get cartItems => _cartItems;
+  Map<int, int> get quantity => _quantity;
 
-  CartProvider() {
-    _loadCart();
-    if (_items.isEmpty) _addTestProducts(); // Add static data for testing
+  int get totalItemsCount => _quantity.values.fold(0, (a, b) => a + b);
+
+  double get subtotal {
+    double total = 0;
+    for (var item in _cartItems) {
+      final qty = _quantity[item.id!] ?? 1;
+      total += (item.payableAmount ?? 0) * qty;
+    }
+    return total;
   }
 
-  int get totalItemsCount {
-    return items.fold(0, (sum, item) => sum + item.quantity);
-  }
+  double get total => subtotal;
 
-  void _addTestProducts() {
-    addItem(
-      CartItemModel(
-        id: '01',
-        title: 'প্রিমিয়াম প্যাকেজ',
-        subtitle: 'লাইট প্যাকেজ × 1',
-        price: 9999,
-        logoUrl:
-            'https://scontent.fdac166-1.fna.fbcdn.net/v/t39.30808-6/220201900_4030753443690194_7815241126078314660_n.jpg?_nc_cat=109&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=Et3Vx7BA9RQQ7kNvwHEVibe&_nc_oc=AdkZwCNzwwLNAQVQd2Y2w31UrKAWxmLbKD8OdErh7v1NeiX_TQn3AoqVIFc4_-NFccQ&_nc_zt=23&_nc_ht=scontent.fdac166-1.fna&_nc_gid=myk_vSV1IIWygJDRLBBLUw&oh=00_AfgZAvlFRNaXI9PXkdm50GgqzntuBB9KCt0dQeb3vf88dA&oe=6914DE1F',
-      ),
-    );
-    addItem(
-      CartItemModel(
-        id: '02',
-        title: 'স্ট্যান্ডার্ড প্যাকেজ',
-        subtitle: 'লাইট প্যাকেজ × 1',
-        price: 4999,
-        logoUrl:
-            'https://scontent.fdac166-1.fna.fbcdn.net/v/t39.30808-6/220201900_4030753443690194_7815241126078314660_n.jpg?_nc_cat=109&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=Et3Vx7BA9RQQ7kNvwHEVibe&_nc_oc=AdkZwCNzwwLNAQVQd2Y2w31UrKAWxmLbKD8OdErh7v1NeiX_TQn3AoqVIFc4_-NFccQ&_nc_zt=23&_nc_ht=scontent.fdac166-1.fna&_nc_gid=myk_vSV1IIWygJDRLBBLUw&oh=00_AfgZAvlFRNaXI9PXkdm50GgqzntuBB9KCt0dQeb3vf88dA&oe=6914DE1F',
-      ),
-    );
-  }
+  /// Add item
+  void addToCart(DevicePackage package) {
+    final existingIndex = _cartItems.indexWhere((p) => p.id == package.id);
 
-  void _calculateTotals() {
-    _subtotal = _items.fold(0, (sum, item) => sum + item.price * item.quantity);
-    _total = _subtotal - (_subtotal * _discountPercent / 100);
-    notifyListeners();
-    _saveCart();
-  }
-
-  void addItem(CartItemModel item) {
-    final index = _items.indexWhere((i) => i.id == item.id);
-    if (index >= 0) {
-      _items[index].quantity += item.quantity;
+    if (existingIndex == -1) {
+      _cartItems.add(package);
+      _quantity[package.id!] = 1;
     } else {
-      _items.add(item);
+      _quantity[package.id!] = (_quantity[package.id!] ?? 1) + 1;
     }
-    _calculateTotals();
+
+    saveCartToCache();
+    notifyListeners();
   }
 
-  void removeItem(String id) {
-    _items.removeWhere((item) => item.id == id);
-    _calculateTotals();
+  /// Remove item
+  void removeFromCart(DevicePackage package) {
+    _cartItems.remove(package);
+    _quantity.remove(package.id);
+    saveCartToCache();
+    notifyListeners();
   }
 
-  void increaseQuantity(String id) {
-    final index = _items.indexWhere((item) => item.id == id);
-    if (index >= 0) {
-      _items[index].quantity += 1;
-      _calculateTotals();
-    }
-  }
-
-  void decreaseQuantity(String id) {
-    final index = _items.indexWhere((item) => item.id == id);
-    if (index >= 0) {
-      _items[index].quantity -= 1;
-      if (_items[index].quantity <= 0) _items.removeAt(index);
-      _calculateTotals();
+  /// Increase quantity
+  void increaseQuantity(DevicePackage package) {
+    final existingIndex = _cartItems.indexWhere((p) => p.id == package.id);
+    if (existingIndex != -1) {
+      _quantity[package.id!] = (_quantity[package.id!] ?? 1) + 1;
+      saveCartToCache();
+      notifyListeners();
     }
   }
 
-  void applyDiscount(double percent) {
-    _discountPercent = percent;
-    _calculateTotals();
+  /// Decrease quantity
+  void decreaseQuantity(DevicePackage package) {
+    if (_cartItems.contains(package)) {
+      if ((_quantity[package.id!] ?? 1) > 1) {
+        _quantity[package.id!] = (_quantity[package.id!] ?? 1) - 1;
+        saveCartToCache();
+        notifyListeners();
+      }
+    }
   }
 
+  /// Clear cart
   void clearCart() {
-    _items.clear();
-    _discountPercent = 0;
-    _calculateTotals();
+    _cartItems.clear();
+    _quantity.clear();
+    saveCartToCache();
+    notifyListeners();
   }
 
-  Future<void> _saveCart() async {
-    final prefs = await SharedPreferences.getInstance();
-    final jsonString = json.encode(_items.map((e) => e.toMap()).toList());
-    await prefs.setString('cart_cache', jsonString);
-    await prefs.setDouble('cart_discount', _discountPercent);
+  /// Remove by ID (expired discount)
+  void removeById(int id) {
+    _cartItems.removeWhere((i) => i.id == id);
+    _quantity.remove(id);
+    saveCartToCache();
+    notifyListeners();
   }
 
-  Future<void> _loadCart() async {
-    final prefs = await SharedPreferences.getInstance();
-    final jsonString = prefs.getString('cart_cache');
-    if (jsonString != null) {
-      final List decoded = json.decode(jsonString);
-      _items = decoded.map((e) => CartItemModel.fromMap(e)).toList();
-      _discountPercent = prefs.getDouble('cart_discount') ?? 0.0;
-      _calculateTotals();
+  /// Build payment items for API
+  List<Map<String, dynamic>> buildPaymentItems() {
+    return _cartItems.map((item) {
+      return {
+        "device_package_id": item.id!,
+        "subscription_package_id": item.subscriptionPackage?.id ?? 1,
+        "quantity": _quantity[item.id] ?? 1,
+      };
+    }).toList();
+  }
+
+  /// Refresh cart prices from API
+  Future<void> refreshCartPrices() async {
+    final updatedItems = <DevicePackage>[];
+
+    for (var item in _cartItems) {
+      try {
+        final response = await DeviceApiController.fetchDevicePackage(item.id!);
+
+        if (response != null && response["status"] == "success") {
+          final freshData = response["data"];
+          final latestPrice =
+              double.tryParse(freshData["payable_amount"].toString()) ?? 0.0;
+
+          updatedItems.add(
+            item.copyWith(
+              payableAmount: latestPrice,
+              discountActive: freshData["discount_active"] ?? false,
+              hasActiveDiscount: freshData["has_active_discount"] ?? false,
+              discountPercent: freshData["discount_percent"] ?? 0,
+            ),
+          );
+          Logger.log("CartProvider - refreshCartPrices: $response");
+        }
+      } catch (e) {
+        Logger.log("Error refreshing item ${item.id}: $e");
+        updatedItems.add(item); // fallback to old price
+      }
     }
+
+    _cartItems
+      ..clear()
+      ..addAll(updatedItems);
+    saveCartToCache();
+    notifyListeners();
+  }
+
+  /// Save cart to SharedPreferences
+  Future<void> saveCartToCache() async {
+    final prefs = await SharedPreferences.getInstance();
+    final itemsJson = _cartItems.map((e) => e.toJson()).toList();
+    final qtyJson = _quantity.map((k, v) => MapEntry(k.toString(), v));
+    await prefs.setString("cart_items", jsonEncode(itemsJson));
+    await prefs.setString("cart_quantity", jsonEncode(qtyJson));
+  }
+
+  /// Load cart from SharedPreferences
+  Future<void> loadCartFromCache() async {
+    final prefs = await SharedPreferences.getInstance();
+    final itemsString = prefs.getString("cart_items");
+    final qtyString = prefs.getString("cart_quantity");
+
+    if (itemsString != null) {
+      final List<dynamic> itemsJson = jsonDecode(itemsString);
+      _cartItems.clear();
+      _cartItems.addAll(itemsJson.map((e) => DevicePackage.fromJson(e)));
+    }
+
+    if (qtyString != null) {
+      final Map<String, dynamic> qtyJson = Map<String, dynamic>.from(
+        jsonDecode(qtyString),
+      );
+      _quantity.clear();
+      qtyJson.forEach((key, value) {
+        _quantity[int.parse(key)] = value;
+      });
+    }
+    notifyListeners();
   }
 }

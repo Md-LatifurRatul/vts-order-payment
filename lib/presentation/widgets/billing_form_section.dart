@@ -14,6 +14,8 @@ class BillingFormSection extends StatelessWidget {
   final TextEditingController vehicleModelController;
   final TextEditingController vtsDeliveryAddressController;
   final TextEditingController vtsInstallationAddressController;
+  final TextEditingController passwordController;
+  final TextEditingController confirmPasswordController;
 
   const BillingFormSection({
     super.key,
@@ -24,6 +26,8 @@ class BillingFormSection extends StatelessWidget {
     required this.vehicleModelController,
     required this.vtsDeliveryAddressController,
     required this.vtsInstallationAddressController,
+    required this.passwordController,
+    required this.confirmPasswordController,
   });
 
   @override
@@ -132,7 +136,76 @@ class BillingFormSection extends StatelessWidget {
                   value!.isEmpty ? 'Please enter installation address' : null,
             ),
 
-            const SizedBox(height: 32),
+            /// Password Field
+            CutomTextField(
+              controller: passwordController,
+              label: 'Password',
+              obscureText: provider.obscurePassword,
+              suffixIcon: IconButton(
+                icon: Icon(
+                  provider.obscurePassword
+                      ? Icons.visibility_off
+                      : Icons.visibility,
+                  color: Colors.grey,
+                ),
+                onPressed: () {
+                  provider.togglePasswordVisibility();
+                },
+              ),
+              validator: (value) {
+                if (value!.isEmpty) return 'Please enter password';
+                if (value.length < 8) {
+                  return 'Password must be at least 8 characters';
+                }
+                return null;
+              },
+              onChanged: (value) {
+                provider.checkPasswordsMatch(
+                  value,
+                  confirmPasswordController.text,
+                );
+              },
+            ),
+
+            /// Confirm Password Field
+            CutomTextField(
+              controller: confirmPasswordController,
+              label: 'Confirm Password',
+              obscureText: provider.obscureConfirmPassword,
+              suffixIcon: IconButton(
+                icon: Icon(
+                  provider.obscureConfirmPassword
+                      ? Icons.visibility_off
+                      : Icons.visibility,
+                  color: Colors.grey,
+                ),
+                onPressed: () {
+                  provider.toggleConfirmPasswordVisibility();
+                },
+              ),
+              validator: (value) {
+                return provider.validateConfirmPassword(
+                  passwordController.text,
+                  value,
+                );
+              },
+              onChanged: (value) {
+                provider.checkPasswordsMatch(passwordController.text, value);
+              },
+            ),
+
+            // Show error message if passwords don't match
+            if (!provider.passwordsMatch &&
+                confirmPasswordController.text.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(left: 16, top: 4),
+                child: Text(
+                  'Passwords do not match',
+                  style: TextStyle(color: Colors.red.shade700, fontSize: 12),
+                ),
+              ),
+
+            const SizedBox(height: 20),
             const TermsAndPayments(),
             const SizedBox(height: 24),
 
@@ -146,6 +219,8 @@ class BillingFormSection extends StatelessWidget {
                 vtsDeliveryAddressController: vtsDeliveryAddressController,
                 vtsInstallationAddressController:
                     vtsInstallationAddressController,
+                passwordController: passwordController,
+                confirmPasswordController: confirmPasswordController,
               ),
             ),
           ],
