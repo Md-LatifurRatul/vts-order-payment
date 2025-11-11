@@ -17,12 +17,12 @@ class CartScreen extends StatefulWidget {
 
 class _CartScreenState extends State<CartScreen> {
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
+  void initState() {
+    super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final cart = context.read<CartProvider>();
-      await cart.refreshCartPrices(); // ✅ Auto refresh latest prices
+      await cart.refreshCartPrices(); // ✅ Runs only once
     });
   }
 
@@ -40,50 +40,57 @@ class _CartScreenState extends State<CartScreen> {
       ),
       body: cart.cartItems.isEmpty
           ? const Center(child: Text('No products added yet!'))
-          : SingleChildScrollView(
-              child: Column(
-                children: [
-                  ...cart.cartItems.map(
-                    (item) => CartItemWidget(package: item),
-                  ),
-                  SummaryCard(),
+          : RefreshIndicator(
+              onRefresh: () async {
+                final cart = context.read<CartProvider>();
+                await cart.refreshCartPrices(); // Manual refresh
+              },
 
-                  const SizedBox(height: 16),
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    ...cart.cartItems.map(
+                      (item) => CartItemWidget(package: item),
+                    ),
+                    SummaryCard(),
 
-                  // Add More Button
-                  CustomActionButton(
-                    label: 'Add More',
-                    color: Colors.orange,
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                  const SizedBox(height: 24),
+                    const SizedBox(height: 16),
 
-                  // FAQ Section
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
-                    child: Text(
-                      'সাধারণ জিজ্ঞাসা',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                    // Add More Button
+                    CustomActionButton(
+                      label: 'Add More',
+                      color: Colors.orange,
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                    const SizedBox(height: 24),
+
+                    // FAQ Section
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        'সাধারণ জিজ্ঞাসা',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  const CartFaqItem(
-                    question: 'ডিভাইস ব্যবহার করতে কী কী লাগবে?',
-                    answer:
-                        'ডিভাইস ইনস্টল করতে আপনার গাড়ির ব্যাটারি কানেকশন, সিম কার্ড এবং ইন্টারনেট সংযোগ প্রয়োজন।',
-                  ),
-                  const CartFaqItem(
-                    question: 'ডিভাইস ট্র্যাকার কেন ব্যবহার করবেন?',
-                    answer:
-                        'ডিভাইস আপনার গাড়ির নিরাপত্তা, লাইভ ট্র্যাকিং, এবং AC অন/অফ নোটিফিকেশন প্রদান করে।',
-                  ),
-                  const SizedBox(height: 24),
-                ],
+                    const SizedBox(height: 8),
+                    const CartFaqItem(
+                      question: 'ডিভাইস ব্যবহার করতে কী কী লাগবে?',
+                      answer:
+                          'ডিভাইস ইনস্টল করতে আপনার গাড়ির ব্যাটারি কানেকশন, সিম কার্ড এবং ইন্টারনেট সংযোগ প্রয়োজন।',
+                    ),
+                    const CartFaqItem(
+                      question: 'ডিভাইস ট্র্যাকার কেন ব্যবহার করবেন?',
+                      answer:
+                          'ডিভাইস আপনার গাড়ির নিরাপত্তা, লাইভ ট্র্যাকিং, এবং AC অন/অফ নোটিফিকেশন প্রদান করে।',
+                    ),
+                    const SizedBox(height: 24),
+                  ],
+                ),
               ),
             ),
     );

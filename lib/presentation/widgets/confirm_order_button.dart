@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:vts_price/controller/terms_provider.dart';
-import 'package:vts_price/model/check_out_user_model.dart';
+import 'package:vts_price/controller/user_registration_controller.dart';
+import 'package:vts_price/presentation/screen/payment_screen.dart';
 import 'package:vts_price/presentation/widgets/custom_app_snackbar.dart';
+import 'package:vts_price/presentation/widgets/order_confirm_dialogue.dart';
+
+import '../../utils/logger.dart';
 
 class ConfirmOrderButton extends StatelessWidget {
   final GlobalKey<FormState> formKey;
@@ -35,21 +39,45 @@ class ConfirmOrderButton extends StatelessWidget {
       onPressed: termsProvider.isAgreed
           ? () async {
               if (formKey.currentState!.validate()) {
-                final checkoutData = CheckOutUserModel(
-                  fullName: fullNameController.text,
-                  mobile: mobileController.text,
-                  email: emailController.text,
-                  vehicleModel: vehicleModelController.text,
+                final confirm = await showDialog<bool>(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (ctx) {
+                    return OrderConfirmDialogue();
+                  },
+                );
+
+                // User pressed NO → exit
+                if (confirm == false) return;
+
+                // User pressed YES → continue registration
+                final success = await UserRegistrationController.createUser(
+                  context: context,
+                  fullName: fullNameController.text.trim(),
+                  email: emailController.text.trim(),
+                  phone: mobileController.text.trim(),
+                  password: passwordController.text,
+                  confirmPassword: confirmPasswordController.text,
                   vtsDeliveryAddress: vtsDeliveryAddressController.text,
                   vtsInstallationAddress: vtsInstallationAddressController.text,
                 );
 
-                CustomAppSnackbar.show(
-                  context,
-                  message: 'Order Confirmed!',
-                  type: SnackBarType.success,
-                  duration: const Duration(seconds: 2),
-                );
+                if (success) {
+                  Logger.log("User creation completed → moving to next step");
+
+                  CustomAppSnackbar.show(
+                    context,
+                    message: 'Order Confirmed!',
+                    type: SnackBarType.success,
+                    duration: const Duration(seconds: 2),
+                  );
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const PaymentScreen(),
+                    ),
+                  );
+                }
               }
             }
           : null, // 🔒 Disabled until terms agreed
