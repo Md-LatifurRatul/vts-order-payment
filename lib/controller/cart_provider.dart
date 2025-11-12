@@ -99,10 +99,11 @@ class CartProvider extends ChangeNotifier {
   }
 
   /// Refresh cart prices from API
-  Future<void> refreshCartPrices() async {
+  Future<void> refreshCartPrices(context) async {
     final updatedItems = <DevicePackage>[];
-
+    int count = 0;
     for (var item in _cartItems) {
+      count++;
       try {
         final response = await DeviceApiController.fetchDevicePackage(item.id!);
 
@@ -117,6 +118,13 @@ class CartProvider extends ChangeNotifier {
               discountActive: freshData["discount_active"] ?? false,
               hasActiveDiscount: freshData["has_active_discount"] ?? false,
               discountPercent: freshData["discount_percent"] ?? 0,
+            ),
+          );
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                "Price for ${item.name} updated to $latestPrice+${count.toString()}",
+              ),
             ),
           );
           Logger.log("CartProvider - refreshCartPrices: $response");
