@@ -15,7 +15,7 @@ class CartFloatingActionButton extends StatelessWidget {
           backgroundColor: Colors.blue,
           onPressed: () async {
             Logger.log("Refreshing cart prices...");
-            await cart.refreshCartPrices(); // ✅ Auto refresh prices
+            await cart.refreshCartPrices(context); // ✅ Auto refresh prices
             Logger.log("Cart refreshed, navigating to CartScreen");
             Navigator.push(
               context,

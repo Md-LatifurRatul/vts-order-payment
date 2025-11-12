@@ -22,7 +22,7 @@ class _CartScreenState extends State<CartScreen> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final cart = context.read<CartProvider>();
-      await cart.refreshCartPrices(); // ✅ Auto refresh latest prices
+      await cart.refreshCartPrices(context);
     });
   }
 
