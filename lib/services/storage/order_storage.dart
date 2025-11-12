@@ -73,6 +73,30 @@ class OrderStorage {
     return prefs.getString("total_original_amount");
   }
 
+  // ✅ Save User Info for Billing
+  static Future<void> saveUserBillingInfo({
+    required String name,
+    required String email,
+    required String phone,
+    required String userAddress,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString("billing_name", name);
+    await prefs.setString("billing_email", email);
+    await prefs.setString("billing_phone", phone);
+    await prefs.setString("user_address", userAddress);
+  }
+
+  static Future<Map<String, String?>> getUserBillingInfo() async {
+    final prefs = await SharedPreferences.getInstance();
+    return {
+      "name": prefs.getString("billing_name"),
+      "email": prefs.getString("billing_email"),
+      "phone": prefs.getString("billing_phone"),
+      "user_address": prefs.getString("user_address"),
+    };
+  }
+
   // ✅ Clear All Order Storage (optional)
   static Future<void> clearAllOrderData() async {
     final prefs = await SharedPreferences.getInstance();
@@ -82,5 +106,17 @@ class OrderStorage {
     await prefs.remove("unique_id");
     await prefs.remove("total_payable_amount");
     await prefs.remove("total_original_amount");
+  }
+
+  // ✅ Save Order ID
+  static Future<void> saveOrderId(String orderId) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString("order_id", orderId);
+  }
+
+  // ✅ Get Order ID
+  static Future<String?> getOrderId() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString("order_id");
   }
 }

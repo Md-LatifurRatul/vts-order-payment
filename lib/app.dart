@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vts_price/package_list/ui/package_list.dart';
+import 'package:vts_price/presentation/package_list/screen/package_list.dart';
 
 class CheckOutBillingApp extends StatelessWidget {
   const CheckOutBillingApp({super.key});

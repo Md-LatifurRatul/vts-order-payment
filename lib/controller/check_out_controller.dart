@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:vts_price/controller/cart_provider.dart';
 import 'package:vts_price/controller/device_api_controller.dart';
-import 'package:vts_price/package_list/ui/package_list.dart';
+import 'package:vts_price/presentation/package_list/screen/package_list.dart';
 import 'package:vts_price/presentation/screen/checkout_billing_screen.dart';
 import 'package:vts_price/presentation/widgets/custom_app_snackbar.dart';
 import 'package:vts_price/services/storage/order_storage.dart';

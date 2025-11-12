@@ -69,6 +69,14 @@ class UserRegistrationController {
           // Save both addresses for later use
           await OrderStorage.saveDeliveryAddress(vtsDeliveryAddress);
           await OrderStorage.saveInstallationAddress(vtsInstallationAddress);
+
+          await OrderStorage.saveUserBillingInfo(
+            name: fullName,
+            email: email,
+            phone: phone,
+            userAddress: vtsDeliveryAddress,
+          );
+
           Logger.log("USER CREATED SUCCESSFULLY → $userId");
           return true;
         } else {

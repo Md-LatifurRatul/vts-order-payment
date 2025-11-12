@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class OrderConfirmDialogue extends StatelessWidget {
-  const OrderConfirmDialogue({super.key});
+class OrderConfirmDialog extends StatelessWidget {
+  const OrderConfirmDialog({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -11,11 +11,11 @@ class OrderConfirmDialogue extends StatelessWidget {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(false),
-          child: const Text("No"),
+          child: const Text("No", style: TextStyle(color: Colors.red)),
         ),
         TextButton(
           onPressed: () => Navigator.of(context).pop(true),
-          child: const Text("Yes"),
+          child: const Text("Yes", style: TextStyle(color: Colors.green)),
         ),
       ],
     );

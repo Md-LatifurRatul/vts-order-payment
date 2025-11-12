@@ -3,7 +3,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:vts_price/package_list/model/package_model.dart';
+import 'package:vts_price/model/package_model.dart';
 import 'package:vts_price/utils/network_constants.dart';
 
 class PackageProvider extends ChangeNotifier {

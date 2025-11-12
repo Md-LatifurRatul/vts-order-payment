@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vts_price/controller/device_api_controller.dart';
-import 'package:vts_price/package_list/model/package_model.dart';
+import 'package:vts_price/model/package_model.dart';
 
 import '../utils/logger.dart';
 

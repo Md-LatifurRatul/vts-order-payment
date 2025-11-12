@@ -4,8 +4,8 @@ import 'package:vts_price/app.dart';
 import 'package:vts_price/controller/billing_form_provider.dart';
 import 'package:vts_price/controller/cart_provider.dart';
 import 'package:vts_price/controller/order_provider.dart';
+import 'package:vts_price/controller/package_list_provider.dart';
 import 'package:vts_price/controller/terms_provider.dart';
-import 'package:vts_price/package_list/provider/package_list_provider.dart';
 
 void main() {
   runApp(

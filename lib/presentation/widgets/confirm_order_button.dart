@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:vts_price/controller/device_order_address_controller.dart';
 import 'package:vts_price/controller/terms_provider.dart';
 import 'package:vts_price/controller/user_registration_controller.dart';
 import 'package:vts_price/presentation/screen/payment_screen.dart';
 import 'package:vts_price/presentation/widgets/custom_app_snackbar.dart';
-import 'package:vts_price/presentation/widgets/order_confirm_dialogue.dart';
+import 'package:vts_price/presentation/widgets/order_confirm_dialog.dart';
 
 import '../../utils/logger.dart';
 
@@ -42,13 +43,21 @@ class ConfirmOrderButton extends StatelessWidget {
                 final confirm = await showDialog<bool>(
                   context: context,
                   barrierDismissible: false,
-                  builder: (ctx) {
-                    return OrderConfirmDialogue();
-                  },
+                  builder: (ctx) => OrderConfirmDialog(),
                 );
 
-                // User pressed NO → exit
                 if (confirm == false) return;
+
+                final addressUpdated =
+                    await DeviceOrderAddressController.updateOrderAddresses(
+                      context: context,
+                      vtsDeliveryAddress: vtsDeliveryAddressController.text
+                          .trim(),
+                      vtsInstallationAddress:
+                          vtsInstallationAddressController.text,
+                    );
+
+                if (!addressUpdated) return; // Stop if failed
 
                 // User pressed YES → continue registration
                 final success = await UserRegistrationController.createUser(

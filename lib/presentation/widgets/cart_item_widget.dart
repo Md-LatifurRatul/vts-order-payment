@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:vts_price/controller/cart_provider.dart';
-import 'package:vts_price/package_list/model/package_model.dart';
+import 'package:vts_price/model/package_model.dart';
 
 class CartItemWidget extends StatelessWidget {
   final DevicePackage package;
