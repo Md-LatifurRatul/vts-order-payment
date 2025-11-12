@@ -20,7 +20,9 @@ class PaymentVerifyController {
       Logger.log("PaymentVerifyController → REQUEST BODY: $body");
 
       final response = await http.post(
-        Uri.parse("${NetworkConstants.baseUrl}/api/auth/payment/verify"),
+        Uri.parse(
+          "${NetworkConstants.baseUrl}/api/auth/device-package-payments/verify",
+        ),
         headers: DeviceApiController.headers,
         body: jsonEncode(body),
       );

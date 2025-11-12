@@ -119,6 +119,8 @@ class BillingFormSection extends StatelessWidget {
                     if (value) {
                       vtsInstallationAddressController.text =
                           vtsDeliveryAddressController.text;
+                    } else {
+                      vtsInstallationAddressController.clear();
                     }
                   },
                 ),
@@ -127,14 +129,22 @@ class BillingFormSection extends StatelessWidget {
             ),
 
             /// Installation Address
-            CutomTextField(
-              controller: vtsInstallationAddressController,
-              label: 'VTS Installation Address',
-              maxLines: 2,
-              enabled: !provider.sameAsDelivery,
-              validator: (value) =>
-                  value!.isEmpty ? 'Please enter installation address' : null,
-            ),
+            if (!provider.sameAsDelivery)
+              CutomTextField(
+                controller: vtsInstallationAddressController,
+                label: 'VTS Installation Address',
+                maxLines: 2,
+                validator: (value) =>
+                    value!.isEmpty ? 'Please enter installation address' : null,
+              ),
+            // CutomTextField(
+            //   controller: vtsInstallationAddressController,
+            //   label: 'VTS Installation Address',
+            //   maxLines: 2,
+            //   enabled: !provider.sameAsDelivery,
+            //   validator: (value) =>
+            //       value!.isEmpty ? 'Please enter installation address' : null,
+            // ),
 
             /// Password Field
             CutomTextField(
